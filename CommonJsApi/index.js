@@ -20,7 +20,7 @@ app.get('/hospitalizations', (req, res) => {
 
 //2 - Outra rota para visualização de uma "hospitalization" pelo id:
 app.get('/hospitalization/:hospitalizationId', (req, res) => {
-    const { hospitalizationId } = req.params;
+    const { hospitalizationId } = req.params; //São os parâmetros enviados para a minha solicitação. No caso aqui, o Id.
     const hospitalization = hospitalizations.find((hospitalizationValue) => hospitalizationValue.hospitalizationId === Number(hospitalizationId));
     if (!hospitalization) {
         return res.send("Hospitalization was not find.");
@@ -30,10 +30,39 @@ app.get('/hospitalization/:hospitalizationId', (req, res) => {
 
 //3 - Rota para criar uma nova internação utilizando o método send e o verbo http POST:
 app.post('/hospitalization', (req, res) => {
-    const hospitalizationName = req.body;
-    const hospitalizationId = hospitalizations[hospitalizations.length - 1].hospitalizationId + 1;
-    hospitalizations.push({ hospitalizationId, hospitalizationName })
+    const { hospitalizationType, hospitalizationName } = req.body;
+    const hospitalizationId = hospitalizations.length + 1;
+    hospitalizations.push({ hospitalizationId, hospitalizationType, hospitalizationName })
     res.send("Hospitalization successfully created!")
+});
+
+//4 - Rota para atualizar uma internação existente utilizando o verbo PUT:
+app.put('/hospitalization/:hospitalizationId', (req, res) => {
+    const { hospitalizationId } = req.params;
+    const { hospitalizationType, hospitalizationName } = req.body;
+    const hospitalization = hospitalizations.find((hospitalizationValue) => hospitalizationValue.hospitalizationId === Number(hospitalizationId));
+
+    if(!hospitalization) {
+        return res.send("The requested hospitalization was not found.")
+    }
+
+    hospitalization.hospitalizationType = hospitalizationType;
+    hospitalization.hospitalizationName = hospitalizationName;
+
+    res.send("Hospitalization updated!");
+});
+
+//5 - Rota para deletar uma internação existente utilizando o verbo DELETE:
+app.delete('/hospitalization/:hospitalizationId', (req, res) => {
+    const { hospitalizationId } = req.params;
+    const index = hospitalizations.findIndex((hospitalizationValue) => hospitalizationValue.hospitalizationId === Number(hospitalizationId));
+
+    if(index === -1) {
+        return res.send("The hospitalization was not found.")
+    }
+
+    hospitalizations.splice(index, 1);
+    res.send("Hospitalization deleted!")
 });
 
 //Porta em que o servidor vai rodar:
